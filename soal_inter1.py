@@ -8,7 +8,8 @@ from datetime import datetime
 # -------------------------------
 # AUTO REFRESH SETIAP 1 DETIK
 # -------------------------------
-st_autorefresh(interval=1000, key="timer_refresh")  # auto rerun tiap 1 detik
+# st_autorefresh(interval=1000, key="timer_refresh")  # auto rerun tiap 1 detik
+st_autorefresh(interval=1000 * 60, key="timer_refresh")  # tiap 1 menit
 
 # -------------------------------
 # KONFIGURASI SOAL
@@ -152,6 +153,7 @@ st.session_state.answers[f"{fase_nama} {soal_index+1}"] = jawaban
 # -------------------------------
 st.markdown("---")
 st.markdown("<p style='text-align:center; color:gray;'>© 2025 Ujian Digital | Dibuat oleh Dr. Benrahman 😎</p>", unsafe_allow_html=True)
+
 
 
 
