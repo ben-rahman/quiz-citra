@@ -6,33 +6,34 @@ import io
 from datetime import datetime
 
 # -------------------------------
-# AUTO REFRESH SETIAP 1 DETIK (agar timer realtime)
+# AUTO REFRESH SETIAP 1 DETIK (timer realtime)
 # -------------------------------
 st_autorefresh(interval=1000, key="timer_refresh")
 
 # -------------------------------
-# KONFIGURASI SOAL
+# KONFIGURASI SOAL SIMULASI DAN PEMODELAN
 # -------------------------------
 SOAL_TEORI = [
-    "1. Jelaskan apa yang dimaksud dengan transformasi geometri pada citra digital!",
-    "2. Apa fungsi dari matriks transformasi dalam operasi translasi, rotasi, dan skala?",
-    "3. Sebutkan perbedaan antara rotasi dan transformasi perspektif!",
-    "4. Apa tujuan dari transformasi skala (scaling) dalam pengolahan citra digital?",
-    "5. Dalam konteks DUDI, sebutkan satu contoh penerapan transformasi perspektif di industri nyata!"
+    "1. Apa yang dimaksud dengan simulasi dalam konteks sistem dinamis?",
+    "2. Sebutkan tiga jenis model dalam pemodelan sistem!",
+    "3. Apa perbedaan antara model deterministik dan stokastik?",
+    "4. Mengapa validasi model penting dalam simulasi?",
+    "5. Apa tujuan utama dari verifikasi dalam pemodelan simulasi?"
 ]
 
 SOAL_ESSAY = [
-    """6. Jelaskan secara rinci bagaimana proses rotasi citra bekerja di OpenCV!
-Dalam penjelasanmu, sertakan:
-- Fungsi Python yang digunakan,
-- Penjelasan parameter (pusat rotasi, sudut, skala),
-- Dampak visual dari perubahan sudut.""",
-    """7. Bandingkan dan jelaskan perbedaan antara transformasi afine dan transformasi perspektif.
-Sertakan contoh aplikasinya dalam industri!"""
+    """6. Jelaskan langkah-langkah umum dalam proses pemodelan dan simulasi sistem!""",
+    """7. Jelaskan peran simulasi dalam pengambilan keputusan di dunia nyata, sertakan contoh aplikasinya!"""
 ]
 
 # -------------------------------
-# STATE
+# KONFIGURASI WAKTU UJIAN
+# -------------------------------
+# ⏰ Waktu mulai otomatis jam 13:30
+WAKTU_MULAI = "13:30"
+
+# -------------------------------
+# STATE MANAGEMENT
 # -------------------------------
 if "start_time" not in st.session_state:
     st.session_state.start_time = None
@@ -46,8 +47,16 @@ if "name" not in st.session_state:
 # -------------------------------
 # HEADER
 # -------------------------------
-st.markdown("<h1 style='text-align:center; color:#0066cc;'>🧠 QUIZ - PENGOLAHAN CITRA DIGITAL</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align:center; color:#0066cc;'>🧮 QUIZ - SIMULASI DAN PEMODELAN</h1>", unsafe_allow_html=True)
 st.markdown("---")
+
+# -------------------------------
+# CEK WAKTU MULAI OTOMATIS
+# -------------------------------
+now = datetime.now().strftime("%H:%M")
+if now < WAKTU_MULAI:
+    st.warning(f"⏰ Ujian akan dimulai otomatis pada pukul **{WAKTU_MULAI}**. Sekarang pukul **{now}**.")
+    st.stop()
 
 # -------------------------------
 # LOGIN DAN MULAI
@@ -70,10 +79,10 @@ if st.session_state.start_time is None:
 elapsed = time.time() - st.session_state.start_time
 
 if st.session_state.phase == "teori":
-    durasi_per_soal = 3  # contoh: 30 detik per soal teori
+    durasi_per_soal = 90  # 3 menit per soal teori
     soal_list = SOAL_TEORI
 elif st.session_state.phase == "essay":
-    durasi_per_soal = 6  # contoh: 60 detik per soal essay
+    durasi_per_soal = 300  # 15 menit per soal essay
     soal_list = SOAL_ESSAY
 else:
     soal_list = []
@@ -101,6 +110,7 @@ if soal_index >= len(soal_list):
 
         csv_buffer = io.StringIO()
         df.to_csv(csv_buffer, index=False, encoding="utf-8-sig")
+        csv_buffer.seek(0)
         st.download_button(
             label="⬇️ Download Jawaban Saya (CSV)",
             data=csv_buffer.getvalue(),
@@ -139,6 +149,8 @@ jawaban = st.text_area("✏️ Jawaban Anda:", value=existing_answer, key=f"inpu
 if jawaban.strip() != existing_answer:
     st.session_state.answers[key_soal] = jawaban
 
+# -------------------------------
+# FOOTER
+# -------------------------------
 st.markdown("---")
 st.markdown("<p style='text-align:center; color:gray;'>© 2025 Ujian Digital | Dibuat oleh Dr. Benrahman 😎</p>", unsafe_allow_html=True)
-
