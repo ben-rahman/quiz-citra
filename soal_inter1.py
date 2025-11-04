@@ -70,10 +70,10 @@ if st.session_state.start_time is None:
 elapsed = time.time() - st.session_state.start_time
 
 if st.session_state.phase == "teori":
-    durasi_per_soal = 30  # 3 menit (180) per soal teori
+    durasi_per_soal = 10  # 3 menit (180) per soal teori
     soal_list = SOAL_TEORI
 elif st.session_state.phase == "essay":
-    durasi_per_soal = 90  # 15 menit (900) per soal essay
+    durasi_per_soal = 10  # 15 menit (900) per soal essay
     soal_list = SOAL_ESSAY
 else:
     soal_list = []
@@ -152,6 +152,7 @@ st.session_state.answers[f"{fase_nama} {soal_index+1}"] = jawaban
 # -------------------------------
 st.markdown("---")
 st.markdown("<p style='text-align:center; color:gray;'>© 2025 Ujian Digital | Dibuat oleh Dr. Benrahman 😎</p>", unsafe_allow_html=True)
+
 
 
 
