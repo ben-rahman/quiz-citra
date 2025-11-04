@@ -110,7 +110,17 @@ if soal_index >= len(soal_list):
         )
 
         st.info("📤 Setelah download, kirim file CSV ke dosen melalui link atau email yang disediakan.")
+
+        # ⚠️ PLAN B: tampilkan semua jawaban agar bisa disalin manual jika download error
+        st.warning("⚠️ Jika tombol download tidak berfungsi, salin teks di bawah ini dan kirimkan lewat form resmi.")
+
+        for s, j in st.session_state.answers.items():
+            st.text(f"{s}:\n{j}\n")
+
         st.stop()
+
+
+
 
 # -------------------------------
 # TAMPILKAN SOAL AKTIF
@@ -141,3 +151,4 @@ st.session_state.answers[f"{fase_nama} {soal_index+1}"] = jawaban
 # -------------------------------
 st.markdown("---")
 st.markdown("<p style='text-align:center; color:gray;'>© 2025 Ujian Digital | Dibuat oleh Dr. Benrahman 😎</p>", unsafe_allow_html=True)
+
