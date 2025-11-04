@@ -6,10 +6,9 @@ import io
 from datetime import datetime
 
 # -------------------------------
-# AUTO REFRESH SETIAP 1 DETIK
+# AUTO REFRESH SETIAP 1 MENIT (AMAN)
 # -------------------------------
-# st_autorefresh(interval=1000, key="timer_refresh")  # auto rerun tiap 1 detik
-st_autorefresh(interval=1000 * 60, key="timer_refresh")  # tiap 1 menit
+st_autorefresh(interval=1000 * 60, key="timer_refresh")
 
 # -------------------------------
 # KONFIGURASI SOAL
@@ -71,10 +70,10 @@ if st.session_state.start_time is None:
 elapsed = time.time() - st.session_state.start_time
 
 if st.session_state.phase == "teori":
-    durasi_per_soal = 10  # 3 menit (180) per soal teori
+    durasi_per_soal = 10  # detik demo (ubah ke 180 detik untuk real)
     soal_list = SOAL_TEORI
 elif st.session_state.phase == "essay":
-    durasi_per_soal = 10  # 15 menit (900) per soal essay
+    durasi_per_soal = 10  # detik demo (ubah ke 900 detik untuk real)
     soal_list = SOAL_ESSAY
 else:
     soal_list = []
@@ -87,6 +86,9 @@ soal_index = int(elapsed // durasi_per_soal)
 sisa_waktu = durasi_per_soal - (elapsed % durasi_per_soal)
 progress = max(0.0, 1 - (sisa_waktu / durasi_per_soal))
 
+# -------------------------------
+# TRANSISI ANTAR FASE
+# -------------------------------
 if soal_index >= len(soal_list):
     if st.session_state.phase == "teori":
         st.session_state.phase = "essay"
@@ -99,11 +101,11 @@ if soal_index >= len(soal_list):
         st.success("🎉 Ujian selesai! Terima kasih telah mengerjakan.")
         df = pd.DataFrame(list(st.session_state.answers.items()), columns=["Soal", "Jawaban"])
         filename = f"Jawaban_{st.session_state.name}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
-        
+
         # Simpan ke memori dan tampilkan tombol download
         csv_buffer = io.StringIO()
         df.to_csv(csv_buffer, index=False, encoding="utf-8-sig")
-        csv_buffer.seek(0)  # 🔧 penting: pastikan data siap dibaca
+        csv_buffer.seek(0)
         st.download_button(
             label="⬇️ Download Jawaban Saya (CSV)",
             data=csv_buffer.getvalue(),
@@ -113,16 +115,12 @@ if soal_index >= len(soal_list):
 
         st.info("📤 Setelah download, kirim file CSV ke dosen melalui link atau email yang disediakan.")
 
-        # ⚠️ PLAN B: tampilkan semua jawaban agar bisa disalin manual jika download error
         st.warning("⚠️ Jika tombol download tidak berfungsi, salin teks di bawah ini dan kirimkan lewat form resmi.")
 
         for s, j in st.session_state.answers.items():
             st.text(f"{s}:\n{j}\n")
 
         st.stop()
-
-
-
 
 # -------------------------------
 # TAMPILKAN SOAL AKTIF
@@ -141,20 +139,26 @@ with col2:
     st.metric("⏳ Sisa Waktu", f"{int(sisa_waktu)} detik")
 
 # -------------------------------
-# INPUT JAWABAN
+# INPUT JAWABAN (AMAN DARI REFRESH)
 # -------------------------------
-jawaban = st.text_area("✏️ Jawaban Anda:", 
-                       key=f"jawaban_{st.session_state.phase}_{soal_index}",
-                       height=200)
-st.session_state.answers[f"{fase_nama} {soal_index+1}"] = jawaban
+# Ambil jawaban yang sudah ada sebelumnya (kalau user sempat ngetik lalu refresh)
+existing_answer = st.session_state.answers.get(f"{fase_nama} {soal_index+1}", "")
+jawaban = st.text_area(
+    "✏️ Jawaban Anda:",
+    value=existing_answer,
+    key=f"jawaban_{st.session_state.phase}_{soal_index}",
+    height=200
+)
+
+# Simpan otomatis setiap kali teks berubah
+if jawaban.strip() != existing_answer:
+    st.session_state.answers[f"{fase_nama} {soal_index+1}"] = jawaban
+
+# Tombol opsional untuk simpan manual
+st.button("💾 Simpan Jawaban Sekarang")
 
 # -------------------------------
 # FOOTER
 # -------------------------------
 st.markdown("---")
 st.markdown("<p style='text-align:center; color:gray;'>© 2025 Ujian Digital | Dibuat oleh Dr. Benrahman 😎</p>", unsafe_allow_html=True)
-
-
-
-
-
