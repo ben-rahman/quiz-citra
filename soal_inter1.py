@@ -102,6 +102,7 @@ if soal_index >= len(soal_list):
         # Simpan ke memori dan tampilkan tombol download
         csv_buffer = io.StringIO()
         df.to_csv(csv_buffer, index=False, encoding="utf-8-sig")
+        csv_buffer.seek(0)  # 🔧 penting: pastikan data siap dibaca
         st.download_button(
             label="⬇️ Download Jawaban Saya (CSV)",
             data=csv_buffer.getvalue(),
@@ -151,4 +152,5 @@ st.session_state.answers[f"{fase_nama} {soal_index+1}"] = jawaban
 # -------------------------------
 st.markdown("---")
 st.markdown("<p style='text-align:center; color:gray;'>© 2025 Ujian Digital | Dibuat oleh Dr. Benrahman 😎</p>", unsafe_allow_html=True)
+
 
