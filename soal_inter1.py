@@ -2,6 +2,7 @@ import streamlit as st
 from streamlit_autorefresh import st_autorefresh
 import time
 import pandas as pd
+import io
 from datetime import datetime
 
 # -------------------------------
@@ -45,7 +46,7 @@ if "name" not in st.session_state:
 # -------------------------------
 # HEADER
 # -------------------------------
-st.markdown("<h1 style='text-align:center; color:#0066cc;'>QUIZ - PENGOLAHAN CITRA</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align:center; color:#0066cc;'>🧠 QUIZ - PENGOLAHAN CITRA DIGITAL</h1>", unsafe_allow_html=True)
 st.markdown("---")
 
 # -------------------------------
@@ -69,10 +70,10 @@ if st.session_state.start_time is None:
 elapsed = time.time() - st.session_state.start_time
 
 if st.session_state.phase == "teori":
-    durasi_per_soal = 180  # 3 menit
+    durasi_per_soal = 180  # 3 menit per soal teori
     soal_list = SOAL_TEORI
 elif st.session_state.phase == "essay":
-    durasi_per_soal = 900  # 15 menit
+    durasi_per_soal = 900  # 15 menit per soal essay
     soal_list = SOAL_ESSAY
 else:
     soal_list = []
@@ -91,11 +92,24 @@ if soal_index >= len(soal_list):
         st.session_state.start_time = time.time()
         st.rerun()
     else:
+        # -------------------------------
+        # UJIAN SELESAI
+        # -------------------------------
         st.success("🎉 Ujian selesai! Terima kasih telah mengerjakan.")
         df = pd.DataFrame(list(st.session_state.answers.items()), columns=["Soal", "Jawaban"])
         filename = f"Jawaban_{st.session_state.name}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
-        df.to_csv(filename, index=False, encoding="utf-8-sig")
-        st.write(f"📁 Jawaban disimpan otomatis ke: `{filename}`")
+        
+        # Simpan ke memori dan tampilkan tombol download
+        csv_buffer = io.StringIO()
+        df.to_csv(csv_buffer, index=False, encoding="utf-8-sig")
+        st.download_button(
+            label="⬇️ Download Jawaban Saya (CSV)",
+            data=csv_buffer.getvalue(),
+            file_name=filename,
+            mime="text/csv"
+        )
+
+        st.info("📤 Setelah download, kirim file CSV ke dosen melalui link atau email yang disediakan.")
         st.stop()
 
 # -------------------------------
@@ -126,5 +140,4 @@ st.session_state.answers[f"{fase_nama} {soal_index+1}"] = jawaban
 # FOOTER
 # -------------------------------
 st.markdown("---")
-st.markdown("<p style='text-align:center; color:gray;'>© 2025 Ujian Digital | Dibuat oleh Dr Benrahman 😎</p>", unsafe_allow_html=True)
-
+st.markdown("<p style='text-align:center; color:gray;'>© 2025 Ujian Digital | Dibuat oleh Dr. Benrahman 😎</p>", unsafe_allow_html=True)
