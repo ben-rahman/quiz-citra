@@ -45,7 +45,7 @@ if "name" not in st.session_state:
 # -------------------------------
 # HEADER
 # -------------------------------
-st.markdown("<h1 style='text-align:center; color:#0066cc;'>🧠 QUIZ - PENGOLAHAN CITRA</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align:center; color:#0066cc;'>QUIZ - PENGOLAHAN CITRA</h1>", unsafe_allow_html=True)
 st.markdown("---")
 
 # -------------------------------
@@ -126,4 +126,5 @@ st.session_state.answers[f"{fase_nama} {soal_index+1}"] = jawaban
 # FOOTER
 # -------------------------------
 st.markdown("---")
-st.markdown("<p style='text-align:center; color:gray;'>© 2025 Ujian Digital | Dibuat oleh Bro Benrahman 😎</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align:center; color:gray;'>© 2025 Ujian Digital | Dibuat oleh Dr Benrahman 😎</p>", unsafe_allow_html=True)
+
