@@ -11,7 +11,7 @@ from datetime import datetime
 st_autorefresh(interval=1000, key="timer_refresh")
 
 # -------------------------------
-# KONFIGURASI SOAL SIMULASI DAN PEMODELAN
+# KONFIGURASI SOAL: SIMULASI DAN PEMODELAN
 # -------------------------------
 SOAL_TEORI = [
     "1. Apa yang dimaksud dengan simulasi dalam konteks sistem dinamis?",
@@ -25,12 +25,6 @@ SOAL_ESSAY = [
     """6. Jelaskan langkah-langkah umum dalam proses pemodelan dan simulasi sistem!""",
     """7. Jelaskan peran simulasi dalam pengambilan keputusan di dunia nyata, sertakan contoh aplikasinya!"""
 ]
-
-# -------------------------------
-# KONFIGURASI WAKTU UJIAN
-# -------------------------------
-# ⏰ Waktu mulai otomatis jam 13:30
-WAKTU_MULAI = "13:30"
 
 # -------------------------------
 # STATE MANAGEMENT
@@ -49,14 +43,6 @@ if "name" not in st.session_state:
 # -------------------------------
 st.markdown("<h1 style='text-align:center; color:#0066cc;'>🧮 QUIZ - SIMULASI DAN PEMODELAN</h1>", unsafe_allow_html=True)
 st.markdown("---")
-
-# -------------------------------
-# CEK WAKTU MULAI OTOMATIS
-# -------------------------------
-now = datetime.now().strftime("%H:%M")
-if now < WAKTU_MULAI:
-    st.warning(f"⏰ Ujian akan dimulai otomatis pada pukul **{WAKTU_MULAI}**. Sekarang pukul **{now}**.")
-    st.stop()
 
 # -------------------------------
 # LOGIN DAN MULAI
