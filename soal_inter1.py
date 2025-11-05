@@ -10,7 +10,7 @@ from datetime import datetime
 st_autorefresh(interval=1000, key="timer_refresh")  # auto rerun tiap 1 detik
 
 # -------------------------------
-# KONFIGURASI SOAL - BLOCKCHAIN & BUSINESS MANAGEMENT
+# KONFIGURASI SOAL
 # -------------------------------
 SOAL_TEORI = [
     "1. Jelaskan secara singkat apa yang dimaksud dengan Blockchain dan bagaimana perbedaannya dengan database tradisional.",
@@ -72,7 +72,7 @@ if st.session_state.phase == "teori":
     durasi_per_soal = 90  # 3 menit per soal teori
     soal_list = SOAL_TEORI
 elif st.session_state.phase == "essay":
-    durasi_per_soal = 450  # 15 menit per soal essay
+    durasi_per_soal = 300  # 15 menit per soal essay
     soal_list = SOAL_ESSAY
 else:
     soal_list = []
@@ -92,10 +92,6 @@ if soal_index >= len(soal_list):
         st.rerun()
     else:
         st.success("🎉 Ujian selesai! Terima kasih telah mengerjakan.")
-        df = pd.DataFrame(list(st.session_state.answers.items()), columns=["Soal", "Jawaban"])
-        filename = f"Jawaban_Blockchain_{st.session_state.name}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
-        df.to_csv(filename, index=False, encoding="utf-8-sig")
-        st.write(f"📁 Jawaban disimpan otomatis ke: `{filename}`")
         st.stop()
 
 # -------------------------------
@@ -120,14 +116,30 @@ with col2:
 jawaban = st.text_area("✏️ Jawaban Anda:", 
                        key=f"jawaban_{st.session_state.phase}_{soal_index}",
                        height=200)
-st.session_state.answers[f"{fase_nama} {soal_index+1}"] = jawaban
+
+# -------------------------------
+# SAVE JAWABAN PER SOAL LANGSUNG
+# -------------------------------
+if jawaban.strip():
+    # Simpan ke session
+    st.session_state.answers[f"{fase_nama} {soal_index+1}"] = jawaban
+
+    # Simpan ke CSV tiap soal langsung
+    df = pd.DataFrame([{
+        "Nama": st.session_state.name,
+        "Fase": st.session_state.phase,
+        "Nomor Soal": soal_index + 1,
+        "Soal": soal,
+        "Jawaban": jawaban,
+        "Waktu Simpan": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    }])
+
+    filename = f"Jawaban_{st.session_state.name}_soal{soal_index+1}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+    df.to_csv(filename, index=False, encoding="utf-8-sig")
+    st.success(f"✅ Jawaban soal {soal_index+1} tersimpan otomatis ke file `{filename}`")
 
 # -------------------------------
 # FOOTER
 # -------------------------------
 st.markdown("---")
-st.markdown("<p style='text-align:center; color:gray;'>© 2025 Ujian Digital Blockchain | Dibuat oleh Dr.Benrahman 😎</p>", unsafe_allow_html=True)
-
-
-
-
+st.markdown("<p style='text-align:center; color:gray;'>© 2025 Ujian Digital Blockchain | Dibuat oleh Dr. H. Benrahman 😎</p>", unsafe_allow_html=True)
