@@ -2,33 +2,32 @@ import streamlit as st
 from streamlit_autorefresh import st_autorefresh
 import time
 import pandas as pd
-import io
 from datetime import datetime
 
 # -------------------------------
-# AUTO REFRESH SETIAP 1 DETIK (agar timer realtime)
+# AUTO REFRESH SETIAP 1 DETIK
 # -------------------------------
-st_autorefresh(interval=1000, key="timer_refresh")
+st_autorefresh(interval=1000, key="timer_refresh")  # auto rerun tiap 1 detik
 
 # -------------------------------
-# KONFIGURASI SOAL
+# KONFIGURASI SOAL - BLOCKCHAIN & BUSINESS MANAGEMENT
 # -------------------------------
 SOAL_TEORI = [
-    "1. Jelaskan apa yang dimaksud dengan transformasi geometri pada citra digital!",
-    "2. Apa fungsi dari matriks transformasi dalam operasi translasi, rotasi, dan skala?",
-    "3. Sebutkan perbedaan antara rotasi dan transformasi perspektif!",
-    "4. Apa tujuan dari transformasi skala (scaling) dalam pengolahan citra digital?",
-    "5. Dalam konteks DUDI, sebutkan satu contoh penerapan transformasi perspektif di industri nyata!"
+    "1. Jelaskan secara singkat apa yang dimaksud dengan Blockchain dan bagaimana perbedaannya dengan database tradisional.",
+    "2. Apa peran dari hash function dalam sistem Blockchain, dan mengapa sifat 'immutability' penting?",
+    "3. Sebutkan dan jelaskan secara singkat tiga komponen utama dalam blok Blockchain.",
+    "4. Apa yang dimaksud dengan mekanisme konsensus, dan berikan dua contoh jenis mekanisme konsensus yang populer.",
+    "5. Mengapa desentralisasi dianggap sebagai salah satu keunggulan utama Blockchain dibandingkan sistem terpusat?"
 ]
 
 SOAL_ESSAY = [
-    """6. Jelaskan secara rinci bagaimana proses rotasi citra bekerja di OpenCV!
+    """6. Jelaskan secara mendalam bagaimana proses mining bekerja pada Blockchain berbasis Proof of Work (PoW).
 Dalam penjelasanmu, sertakan:
-- Fungsi Python yang digunakan,
-- Penjelasan parameter (pusat rotasi, sudut, skala),
-- Dampak visual dari perubahan sudut.""",
-    """7. Bandingkan dan jelaskan perbedaan antara transformasi afine dan transformasi perspektif.
-Sertakan contoh aplikasinya dalam industri!"""
+- Langkah-langkah utama dari pembentukan blok hingga validasi transaksi,
+- Peran node dan miner,
+- Dampak efisiensi energi serta alternatif yang lebih berkelanjutan.""",
+    """7. Analisis bagaimana smart contract pada platform seperti Ethereum mengubah paradigma transaksi digital.
+Jelaskan konsep dasar, manfaat, serta risiko yang muncul (termasuk bug dan implikasi kepercayaan sistem)."""
 ]
 
 # -------------------------------
@@ -46,7 +45,7 @@ if "name" not in st.session_state:
 # -------------------------------
 # HEADER
 # -------------------------------
-st.markdown("<h1 style='text-align:center; color:#0066cc;'>🧠 QUIZ - PENGOLAHAN CITRA DIGITAL</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align:center; color:#0066cc;'>🧠 QUIZ - BLOCKCHAIN & BUSINESS MANAGEMENT</h1>", unsafe_allow_html=True)
 st.markdown("---")
 
 # -------------------------------
@@ -70,10 +69,10 @@ if st.session_state.start_time is None:
 elapsed = time.time() - st.session_state.start_time
 
 if st.session_state.phase == "teori":
-    durasi_per_soal = 90  # contoh: 30 detik per soal teori
+    durasi_per_soal = 180  # 3 menit per soal teori
     soal_list = SOAL_TEORI
 elif st.session_state.phase == "essay":
-    durasi_per_soal = 450  # contoh: 60 detik per soal essay
+    durasi_per_soal = 900  # 15 menit per soal essay
     soal_list = SOAL_ESSAY
 else:
     soal_list = []
@@ -83,7 +82,7 @@ else:
 # LOGIKA PENAMPILAN SOAL
 # -------------------------------
 soal_index = int(elapsed // durasi_per_soal)
-sisa_waktu = int(durasi_per_soal - (elapsed % durasi_per_soal))
+sisa_waktu = durasi_per_soal - (elapsed % durasi_per_soal)
 progress = max(0.0, 1 - (sisa_waktu / durasi_per_soal))
 
 if soal_index >= len(soal_list):
@@ -92,26 +91,11 @@ if soal_index >= len(soal_list):
         st.session_state.start_time = time.time()
         st.rerun()
     else:
-        # -------------------------------
-        # UJIAN SELESAI
-        # -------------------------------
         st.success("🎉 Ujian selesai! Terima kasih telah mengerjakan.")
         df = pd.DataFrame(list(st.session_state.answers.items()), columns=["Soal", "Jawaban"])
-        filename = f"Jawaban_{st.session_state.name}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
-
-        csv_buffer = io.StringIO()
-        df.to_csv(csv_buffer, index=False, encoding="utf-8-sig")
-        st.download_button(
-            label="⬇️ Download Jawaban Saya (CSV)",
-            data=csv_buffer.getvalue(),
-            file_name=filename,
-            mime="text/csv"
-        )
-
-        st.info("📤 Setelah download, kirim file CSV ke dosen melalui link atau email yang disediakan.")
-        st.warning("⚠️ Jika tombol download tidak berfungsi, salin teks di bawah ini dan kirimkan lewat form resmi.")
-        for s, j in st.session_state.answers.items():
-            st.text(f"{s}:\n{j}\n")
+        filename = f"Jawaban_Blockchain_{st.session_state.name}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+        df.to_csv(filename, index=False, encoding="utf-8-sig")
+        st.write(f"📁 Jawaban disimpan otomatis ke: `{filename}`")
         st.stop()
 
 # -------------------------------
@@ -128,17 +112,18 @@ col1, col2 = st.columns([3, 1])
 with col1:
     st.progress(progress)
 with col2:
-    st.metric("⏳ Sisa Waktu", f"{sisa_waktu} detik")
+    st.metric("⏳ Sisa Waktu", f"{int(sisa_waktu)} detik")
 
 # -------------------------------
-# INPUT JAWABAN (AMAN)
+# INPUT JAWABAN
 # -------------------------------
-key_soal = f"{fase_nama} {soal_index+1}"
-existing_answer = st.session_state.answers.get(key_soal, "")
-jawaban = st.text_area("✏️ Jawaban Anda:", value=existing_answer, key=f"input_{key_soal}", height=200)
-if jawaban.strip() != existing_answer:
-    st.session_state.answers[key_soal] = jawaban
+jawaban = st.text_area("✏️ Jawaban Anda:", 
+                       key=f"jawaban_{st.session_state.phase}_{soal_index}",
+                       height=200)
+st.session_state.answers[f"{fase_nama} {soal_index+1}"] = jawaban
 
+# -------------------------------
+# FOOTER
+# -------------------------------
 st.markdown("---")
-st.markdown("<p style='text-align:center; color:gray;'>© 2025 Ujian Digital | Dibuat oleh Dr. Benrahman 😎</p>", unsafe_allow_html=True)
-
+st.markdown("<p style='text-align:center; color:gray;'>© 2025 Ujian Digital Blockchain | Dibuat oleh Dr.Benrahman 😎</p>", unsafe_allow_html=True)
