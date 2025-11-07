@@ -6,12 +6,12 @@ from datetime import datetime
 import io
 
 # -------------------------------
-# AUTO REFRESH SETIAP 1 DETIK UNTUK TIMER SAJA
+# AUTO REFRESH SETIAP 1 DETIK
 # -------------------------------
 st_autorefresh(interval=1000, key="timer_refresh")
 
 # -------------------------------
-# KONFIGURASI SOAL - DATA MINING (Pertemuan 1–5)
+# KONFIGURASI SOAL
 # -------------------------------
 SOAL_TEORI = [
     "1. Jelaskan secara singkat apa yang dimaksud dengan Data Mining dan bagaimana perbedaannya dengan Machine Learning.",
@@ -22,12 +22,12 @@ SOAL_TEORI = [
 ]
 
 SOAL_ESSAY = [
-    """6. Jelaskan bagaimana hubungan antara Data Warehouse, OLAP, dan Data Mining dalam mendukung proses pengambilan keputusan organisasi. Sertakan ilustrasi alur sederhana.""",
-    """7. Berdasarkan pemahaman Anda terhadap CRISP-DM dan Data Preprocessing, jelaskan pentingnya integrasi antara Business Understanding, Data Preparation, dan Modeling agar hasil Data Mining dapat bermanfaat secara nyata. Sertakan contoh kasus sederhana."""
+    """6. Jelaskan bagaimana hubungan antara Data Warehouse, OLAP, dan Data Mining dalam mendukung proses pengambilan keputusan organisasi.""",
+    """7. Berdasarkan pemahaman Anda terhadap CRISP-DM dan Data Preprocessing, jelaskan pentingnya integrasi antara Business Understanding, Data Preparation, dan Modeling."""
 ]
 
 # -------------------------------
-# STATE MANAGEMENT
+# STATE
 # -------------------------------
 if "start_time" not in st.session_state:
     st.session_state.start_time = None
@@ -48,7 +48,7 @@ st.markdown("<h4 style='text-align:center; color:gray;'>Materi Pertemuan 1 s.d 5
 st.markdown("---")
 
 # -------------------------------
-# LOGIN DAN MULAI
+# LOGIN
 # -------------------------------
 if st.session_state.start_time is None:
     st.session_state.name = st.text_input("Masukkan Nama Lengkap Anda:")
@@ -59,19 +59,18 @@ if st.session_state.start_time is None:
             st.session_state.start_time = time.time()
             st.session_state.phase = "teori"
             st.session_state.current_index = 0
-            st.session_state.answers = {}
             st.rerun()
     st.stop()
 
 # -------------------------------
-# KONFIGURASI FASE DAN DURASI
+# PILIH FASE DAN SOAL
 # -------------------------------
 if st.session_state.phase == "teori":
     soal_list = SOAL_TEORI
-    durasi_per_soal = 120  # 2 menit per soal teori
+    durasi_per_soal = 120
 elif st.session_state.phase == "essay":
     soal_list = SOAL_ESSAY
-    durasi_per_soal = 420  # 7 menit per soal essay
+    durasi_per_soal = 420
 else:
     soal_list = []
     durasi_per_soal = 0
@@ -83,16 +82,15 @@ soal_index = st.session_state.current_index
 # -------------------------------
 if soal_index >= len(soal_list):
     if st.session_state.phase == "teori":
-        # lanjut ke bagian essay
+        # Lanjut ke essay
         st.session_state.phase = "essay"
         st.session_state.current_index = 0
         st.session_state.start_time = time.time()
         st.rerun()
     else:
-        # Semua fase selesai
-        st.success("🎉 Ujian / Tugas Selesai! Terima kasih telah mengerjakan semua soal dengan baik.")
+        # Semua fase selesai ✅
+        st.success("🎉 Ujian / Tugas Selesai! Terima kasih telah mengerjakan semua soal.")
 
-        # Gabungkan semua jawaban dan siapkan untuk diunduh
         df_all = pd.DataFrame(list(st.session_state.answers.items()), columns=["Soal", "Jawaban"])
         filename_all = f"JawabanLengkap_{st.session_state.name.replace(' ', '_')}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
 
@@ -108,30 +106,18 @@ if soal_index >= len(soal_list):
             mime="text/csv"
         )
 
-        st.markdown("---")
-        st.markdown("### 📤 Kirim Jawaban ke Dosen via WhatsApp")
-
+        st.markdown("### 📤 Kirim File ke Dosen via WhatsApp")
         wa_message = f"""
 Assalamu'alaikum Pak 🙏  
-Saya *{st.session_state.name}*.  
+Saya {st.session_state.name}.  
 Berikut file hasil ujian/tugas Data Mining saya.  
 
 Nama File:  
 📎 {filename_all}  
 
-Terima kasih, Pak. 🙏
+Terima kasih, Pak 🙏
         """.strip()
-
-        st.text_area("Pesan Siap Kirim ke WA:", wa_message, height=180)
-        st.markdown("""
-📲 **Langkah Kirim Jawaban:**
-1. Klik tombol **Download File Jawaban Saya** di atas.
-2. File akan tersimpan di **Folder Downloads** perangkat Anda (HP atau Laptop).
-3. Kirim file tersebut ke dosen via **WhatsApp** bersama pesan di atas.
-4. Pastikan file sudah terkirim dengan benar ✅
-        """)
-        st.markdown("---")
-        st.markdown("<p style='text-align:center; color:gray;'>© 2025 Ujian Digital Data Mining | Dr. H. Benrahman 😎</p>", unsafe_allow_html=True)
+        st.text_area("Pesan Siap Kirim:", wa_message, height=150)
         st.stop()
 
 # -------------------------------
@@ -144,7 +130,7 @@ st.markdown(f"### {fase_nama} #{soal_index + 1}")
 st.info(soal)
 
 # -------------------------------
-# TIMER DAN PROGRESS BAR
+# TIMER
 # -------------------------------
 elapsed = time.time() - st.session_state.start_time
 sisa_waktu = durasi_per_soal - (elapsed % durasi_per_soal)
@@ -159,15 +145,11 @@ with col2:
 # -------------------------------
 # INPUT JAWABAN
 # -------------------------------
-jawaban = st.text_area(
-    "✏️ Jawaban Anda:",
-    key=f"jawaban_{st.session_state.phase}_{soal_index}",
-    height=200 if st.session_state.phase == "teori" else 300
-)
+jawaban = st.text_area("✏️ Jawaban Anda:", key=f"jawaban_{st.session_state.phase}_{soal_index}", height=250)
 st.session_state.answers[f"{fase_nama} {soal_index + 1}"] = jawaban
 
 # -------------------------------
-# TOMBOL LANJUT
+# LANJUT KE SOAL BERIKUTNYA
 # -------------------------------
 if st.button("➡️ Lanjut ke Soal Berikutnya"):
     if not jawaban.strip():
@@ -182,4 +164,4 @@ if st.button("➡️ Lanjut ke Soal Berikutnya"):
 # FOOTER
 # -------------------------------
 st.markdown("---")
-st.markdown("<p style='text-align:center; color:gray;'>© 2025 Quiz / Tugas Data Mining | Dibuat oleh Dr. H. Benrahman 😎</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align:center; color:gray;'>© 2025 Ujian Digital Data Mining | Dr. H. Benrahman 😎</p>", unsafe_allow_html=True)
