@@ -4,6 +4,7 @@ import time
 import pandas as pd
 from datetime import datetime
 import io
+import pyperclip  # ✅ Library clipboard (built-in di Streamlit Cloud)
 
 # -------------------------------
 # AUTO REFRESH SETIAP 1 DETIK
@@ -90,13 +91,11 @@ soal_index = st.session_state.current_index
 # -------------------------------
 if soal_index >= len(soal_list):
     if st.session_state.phase == "teori":
-        # Lanjut ke bagian essay
         st.session_state.phase = "essay"
         st.session_state.current_index = 0
         st.session_state.start_time = time.time()
         st.rerun()
     else:
-        # SEMUA SUDAH SELESAI ✅
         st.success("🎉 Ujian / Tugas Selesai! Terima kasih telah mengerjakan semua soal.")
 
         # Buat DataFrame berisi semua jawaban
@@ -116,63 +115,35 @@ if soal_index >= len(soal_list):
         )
 
         # -------------------------------
-        # AREA PESAN + TOMBOL COPY SEBELAH KANAN
+        # PESAN WA + COPY BUTTON STREAMLIT NATIVE
         # -------------------------------
         st.markdown("### 📤 Kirim File ke Dosen via WhatsApp")
 
-        wa_message = f"""
-Assalamu'alaikum Pak 🙏  
+        wa_message = f"""Assalamu'alaikum Pak 🙏  
 Saya *{st.session_state.name}*.  
 Berikut file hasil ujian/tugas PPS saya.  
 
 Nama File:  
 📎 {filename_all}  
 
-Terima kasih, Pak 🙏
-        """.strip()
+Terima kasih, Pak 🙏"""
 
-        copy_layout = f"""
-        <div style="display:flex; align-items:flex-start; gap:10px; margin-top:10px;">
-            <textarea id="waText" rows="10" style="
-                width:100%;
-                resize:none;
-                border-radius:8px;
-                border:1px solid #ccc;
-                padding:10px;
-                font-size:15px;
-                font-family:monospace;
-                background-color:#f9f9f9;">{wa_message}</textarea>
-            <button onclick="copyToClipboard()" title="Salin Pesan ke Clipboard" style="
-                background-color:#25D366;
-                color:white;
-                border:none;
-                padding:12px 14px;
-                border-radius:8px;
-                cursor:pointer;
-                font-size:18px;
-                height:fit-content;">📋</button>
-        </div>
+        st.code(wa_message, language="markdown")
 
-        <script>
-        function copyToClipboard() {{
-            var text = document.getElementById('waText').value;
-            navigator.clipboard.writeText(text).then(function() {{
-                alert('✅ Pesan berhasil disalin! Sekarang tinggal paste di WhatsApp 👍');
-            }});
-        }}
-        </script>
-        """
-
-        st.markdown(copy_layout, unsafe_allow_html=True)
+        if st.button("📋 Copy Pesan ke Clipboard"):
+            try:
+                pyperclip.copy(wa_message)
+                st.success("✅ Pesan berhasil disalin ke clipboard! Sekarang tinggal paste ke WhatsApp 👍")
+            except Exception as e:
+                st.warning("⚠️ Browser Anda membatasi akses clipboard. Silakan salin manual dari blok di atas.")
 
         st.markdown("""
 📲 **Langkah-langkah:**
 1. Klik tombol **Download File Jawaban Saya (CSV)** di atas.  
-2. Klik tombol hijau **📋** di sebelah kanan pesan untuk menyalin isi pesan ke clipboard.  
-3. Buka **WhatsApp**, lalu *paste* pesan tersebut dan kirim bersama file CSV.  
+2. Klik tombol **📋 Copy Pesan ke Clipboard** (atau salin manual dari blok pesan).  
+3. Buka **WhatsApp**, lalu *paste* pesan dan kirim bersama file CSV.  
 4. Pastikan file terkirim dengan benar ✅  
         """)
-
         st.stop()
 
 # -------------------------------
