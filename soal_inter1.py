@@ -51,7 +51,7 @@ if "current_index" not in st.session_state:
 # -------------------------------
 # HEADER
 # -------------------------------
-st.markdown("<h1 style='text-align:center; color:#0066cc;'>QUIZ / TUGAS 1 - PPS – SOFTWARE ENGINEERING</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align:center; color:#0066cc;'>UJIAN / TUGAS - PPS – SOFTWARE ENGINEERING</h1>", unsafe_allow_html=True)
 st.markdown("<h4 style='text-align:center; color:gray;'>Materi Pertemuan 1 s.d 5</h4>", unsafe_allow_html=True)
 st.markdown("---")
 
@@ -223,4 +223,5 @@ if st.button("➡️ Lanjut ke Soal Berikutnya"):
 # -------------------------------
 st.markdown("---")
 st.markdown("<p style='text-align:center; color:gray;'>© 2025 Ujian Digital PPS | Disusun oleh Dr. Ben 😎</p>", unsafe_allow_html=True)
+
 
