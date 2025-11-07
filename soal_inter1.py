@@ -22,12 +22,12 @@ SOAL_TEORI = [
 ]
 
 SOAL_ESSAY = [
-    """6. Jelaskan bagaimana hubungan antara Data Warehouse, OLAP, dan Data Mining dalam mendukung proses pengambilan keputusan organisasi.""",
-    """7. Berdasarkan pemahaman Anda terhadap CRISP-DM dan Data Preprocessing, jelaskan pentingnya integrasi antara Business Understanding, Data Preparation, dan Modeling."""
+    """6. Jelaskan bagaimana hubungan antara Data Warehouse, OLAP, dan Data Mining dalam mendukung proses pengambilan keputusan organisasi. Sertakan contoh sederhana.""",
+    """7. Berdasarkan pemahaman Anda terhadap CRISP-DM dan Data Preprocessing, jelaskan pentingnya integrasi antara Business Understanding, Data Preparation, dan Modeling agar hasil Data Mining dapat bermanfaat secara nyata."""
 ]
 
 # -------------------------------
-# STATE
+# STATE MANAGEMENT
 # -------------------------------
 if "start_time" not in st.session_state:
     st.session_state.start_time = None
@@ -59,6 +59,7 @@ if st.session_state.start_time is None:
             st.session_state.start_time = time.time()
             st.session_state.phase = "teori"
             st.session_state.current_index = 0
+            st.session_state.answers = {}
             st.rerun()
     st.stop()
 
@@ -67,10 +68,10 @@ if st.session_state.start_time is None:
 # -------------------------------
 if st.session_state.phase == "teori":
     soal_list = SOAL_TEORI
-    durasi_per_soal = 120
+    durasi_per_soal = 120  # 2 menit per soal
 elif st.session_state.phase == "essay":
     soal_list = SOAL_ESSAY
-    durasi_per_soal = 420
+    durasi_per_soal = 420  # 7 menit per soal
 else:
     soal_list = []
     durasi_per_soal = 0
@@ -78,38 +79,42 @@ else:
 soal_index = st.session_state.current_index
 
 # -------------------------------
-# JIKA SUDAH SELESAI SEMUA SOAL
+# CEK APAKAH SEMUA SOAL SUDAH SELESAI
 # -------------------------------
 if soal_index >= len(soal_list):
     if st.session_state.phase == "teori":
-        # Lanjut ke essay
+        # Lanjut ke bagian essay
         st.session_state.phase = "essay"
         st.session_state.current_index = 0
         st.session_state.start_time = time.time()
         st.rerun()
     else:
-        # Semua fase selesai ✅
+        # SEMUA SUDAH SELESAI ✅
         st.success("🎉 Ujian / Tugas Selesai! Terima kasih telah mengerjakan semua soal.")
 
+        # Buat DataFrame berisi semua jawaban
         df_all = pd.DataFrame(list(st.session_state.answers.items()), columns=["Soal", "Jawaban"])
         filename_all = f"JawabanLengkap_{st.session_state.name.replace(' ', '_')}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
 
-        csv_buffer = io.StringIO()
-        df_all.to_csv(csv_buffer, index=False, encoding="utf-8-sig")
-        csv_data = csv_buffer.getvalue()
+        # ✅ FIX DOWNLOAD BUFFER (biner agar tidak error di Streamlit Cloud)
+        csv_bytes = io.BytesIO()
+        df_all.to_csv(csv_bytes, index=False, encoding="utf-8-sig")
+        csv_bytes.seek(0)
 
+        # Tombol download
         st.markdown("### 📥 Unduh Hasil Jawaban Anda")
         st.download_button(
             label="⬇️ Download File Jawaban Saya (CSV)",
-            data=csv_data,
+            data=csv_bytes,
             file_name=filename_all,
             mime="text/csv"
         )
 
+        # Pesan siap kirim via WhatsApp
         st.markdown("### 📤 Kirim File ke Dosen via WhatsApp")
         wa_message = f"""
 Assalamu'alaikum Pak 🙏  
-Saya {st.session_state.name}.  
+Saya *{st.session_state.name}*.  
 Berikut file hasil ujian/tugas Data Mining saya.  
 
 Nama File:  
@@ -117,7 +122,18 @@ Nama File:
 
 Terima kasih, Pak 🙏
         """.strip()
-        st.text_area("Pesan Siap Kirim:", wa_message, height=150)
+
+        st.text_area("Pesan Siap Kirim ke WA:", wa_message, height=150)
+
+        # Panduan pengiriman
+        st.markdown("""
+📲 **Langkah-langkah:**
+1. Klik tombol **Download File Jawaban Saya (CSV)** di atas.  
+2. File akan tersimpan di **folder Downloads** perangkat Anda.  
+3. Kirim file CSV tersebut ke dosen via **WhatsApp** beserta pesan di atas.  
+4. Pastikan file terkirim dengan benar ✅  
+        """)
+
         st.stop()
 
 # -------------------------------
@@ -145,11 +161,15 @@ with col2:
 # -------------------------------
 # INPUT JAWABAN
 # -------------------------------
-jawaban = st.text_area("✏️ Jawaban Anda:", key=f"jawaban_{st.session_state.phase}_{soal_index}", height=250)
+jawaban = st.text_area(
+    "✏️ Jawaban Anda:",
+    key=f"jawaban_{st.session_state.phase}_{soal_index}",
+    height=250
+)
 st.session_state.answers[f"{fase_nama} {soal_index + 1}"] = jawaban
 
 # -------------------------------
-# LANJUT KE SOAL BERIKUTNYA
+# TOMBOL LANJUT
 # -------------------------------
 if st.button("➡️ Lanjut ke Soal Berikutnya"):
     if not jawaban.strip():
@@ -164,4 +184,4 @@ if st.button("➡️ Lanjut ke Soal Berikutnya"):
 # FOOTER
 # -------------------------------
 st.markdown("---")
-st.markdown("<p style='text-align:center; color:gray;'>© 2025 Ujian Digital Data Mining | Dr. H. Benrahman 😎</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align:center; color:gray;'>© 2025 Ujian Digital Data Mining | Dibuat oleh Dr. H. Benrahman 😎</p>", unsafe_allow_html=True)
