@@ -6,7 +6,7 @@ from datetime import datetime
 import io
 
 # -------------------------------
-# AUTO REFRESH SETIAP 1 DETIK
+# AUTO REFRESH SETIAP 1 DETIK UNTUK TIMER SAJA
 # -------------------------------
 st_autorefresh(interval=1000, key="timer_refresh")
 
@@ -59,11 +59,12 @@ if st.session_state.start_time is None:
             st.session_state.start_time = time.time()
             st.session_state.phase = "teori"
             st.session_state.current_index = 0
+            st.session_state.answers = {}
             st.rerun()
     st.stop()
 
 # -------------------------------
-# TENTUKAN FASE & DURASI PER SOAL
+# KONFIGURASI FASE DAN DURASI
 # -------------------------------
 if st.session_state.phase == "teori":
     soal_list = SOAL_TEORI
@@ -78,25 +79,23 @@ else:
 soal_index = st.session_state.current_index
 
 # -------------------------------
-# SELESAI SEMUA SOAL
+# JIKA SUDAH SELESAI SEMUA SOAL
 # -------------------------------
 if soal_index >= len(soal_list):
     if st.session_state.phase == "teori":
+        # lanjut ke bagian essay
         st.session_state.phase = "essay"
         st.session_state.current_index = 0
         st.session_state.start_time = time.time()
         st.rerun()
     else:
-        # -------------------------------
-        # UJIAN SELESAI
-        # -------------------------------
+        # Semua fase selesai
         st.success("🎉 Ujian / Tugas Selesai! Terima kasih telah mengerjakan semua soal dengan baik.")
 
-        # Gabungkan semua jawaban jadi satu file (mahasiswa download sendiri)
+        # Gabungkan semua jawaban dan siapkan untuk diunduh
         df_all = pd.DataFrame(list(st.session_state.answers.items()), columns=["Soal", "Jawaban"])
         filename_all = f"JawabanLengkap_{st.session_state.name.replace(' ', '_')}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
 
-        # Buat file dalam memory (bukan di server)
         csv_buffer = io.StringIO()
         df_all.to_csv(csv_buffer, index=False, encoding="utf-8-sig")
         csv_data = csv_buffer.getvalue()
@@ -111,6 +110,7 @@ if soal_index >= len(soal_list):
 
         st.markdown("---")
         st.markdown("### 📤 Kirim Jawaban ke Dosen via WhatsApp")
+
         wa_message = f"""
 Assalamu'alaikum Pak 🙏  
 Saya *{st.session_state.name}*.  
@@ -121,11 +121,12 @@ Nama File:
 
 Terima kasih, Pak. 🙏
         """.strip()
+
         st.text_area("Pesan Siap Kirim ke WA:", wa_message, height=180)
         st.markdown("""
 📲 **Langkah Kirim Jawaban:**
 1. Klik tombol **Download File Jawaban Saya** di atas.
-2. File akan tersimpan di **Folder Downloads** di perangkat Anda (HP/Laptop).
+2. File akan tersimpan di **Folder Downloads** perangkat Anda (HP atau Laptop).
 3. Kirim file tersebut ke dosen via **WhatsApp** bersama pesan di atas.
 4. Pastikan file sudah terkirim dengan benar ✅
         """)
@@ -143,7 +144,7 @@ st.markdown(f"### {fase_nama} #{soal_index + 1}")
 st.info(soal)
 
 # -------------------------------
-# TIMER & PROGRESS
+# TIMER DAN PROGRESS BAR
 # -------------------------------
 elapsed = time.time() - st.session_state.start_time
 sisa_waktu = durasi_per_soal - (elapsed % durasi_per_soal)
@@ -166,7 +167,7 @@ jawaban = st.text_area(
 st.session_state.answers[f"{fase_nama} {soal_index + 1}"] = jawaban
 
 # -------------------------------
-# SAVE JAWABAN & LANJUT
+# TOMBOL LANJUT
 # -------------------------------
 if st.button("➡️ Lanjut ke Soal Berikutnya"):
     if not jawaban.strip():
