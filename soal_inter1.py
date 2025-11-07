@@ -119,7 +119,8 @@ if soal_index >= len(soal_list):
         # -------------------------------
         st.markdown("### 📤 Kirim File ke Dosen via WhatsApp")
 
-        wa_message = f"""Assalamu'alaikum Pak 🙏  
+        wa_message = f"""Assalamualaikum Pak Ben,
+        
 Saya *{st.session_state.name}*.  
 Berikut file hasil ujian/tugas PPS saya.  
 
@@ -222,3 +223,4 @@ if st.button("➡️ Lanjut ke Soal Berikutnya"):
 # -------------------------------
 st.markdown("---")
 st.markdown("<p style='text-align:center; color:gray;'>© 2025 Ujian Digital PPS | Disusun oleh Dr. Ben 😎</p>", unsafe_allow_html=True)
+
