@@ -124,4 +124,63 @@ Terima kasih, Pak. 🙏
 # -------------------------------
 # TAMPILKAN SOAL AKTIF
 # -------------------------------
-soal = soal_list[soal]()_
+soal = soal_list[soal_index]
+fase_nama = "🧩 Short Answer (Teori)" if st.session_state.phase == "teori" else "📝 Long Answer (Essay)"
+
+st.markdown(f"### {fase_nama} #{soal_index + 1}")
+st.info(soal)
+
+# -------------------------------
+# TIMER & PROGRESS
+# -------------------------------
+elapsed = time.time() - st.session_state.start_time
+sisa_waktu = durasi_per_soal - (elapsed % durasi_per_soal)
+progress = max(0.0, 1 - (sisa_waktu / durasi_per_soal))
+
+col1, col2 = st.columns([3, 1])
+with col1:
+    st.progress(progress)
+with col2:
+    st.metric("⏳ Sisa Waktu", f"{int(sisa_waktu)} detik")
+
+# -------------------------------
+# INPUT JAWABAN
+# -------------------------------
+jawaban = st.text_area(
+    "✏️ Jawaban Anda:",
+    key=f"jawaban_{st.session_state.phase}_{soal_index}",
+    height=200 if st.session_state.phase == "teori" else 300
+)
+st.session_state.answers[f"{fase_nama} {soal_index + 1}"] = jawaban
+
+# -------------------------------
+# SAVE JAWABAN & LANJUT
+# -------------------------------
+if st.button("➡️ Lanjut ke Soal Berikutnya"):
+    if not jawaban.strip():
+        st.warning("Isi dulu jawabannya bro 😅")
+    else:
+        df = pd.DataFrame([{
+            "Nama": st.session_state.name,
+            "Fase": st.session_state.phase,
+            "Nomor Soal": soal_index + 1,
+            "Soal": soal,
+            "Jawaban": jawaban,
+            "Waktu Simpan": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        }])
+
+        filename = f"Jawaban_{st.session_state.name}_soal{soal_index + 1}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+        df.to_csv(filename, index=False, encoding="utf-8-sig")
+        st.success(f"✅ Jawaban soal {soal_index + 1} disimpan ke `{filename}`")
+
+        # Pindah ke soal berikutnya
+        st.session_state.current_index += 1
+        st.session_state.start_time = time.time()
+        time.sleep(1)
+        st.rerun()
+
+# -------------------------------
+# FOOTER
+# -------------------------------
+st.markdown("---")
+st.markdown("<p style='text-align:center; color:gray;'>© 2025 Quiz / Tugas Data Mining | Dibuat oleh Dr. H. Benrahman 😎</p>", unsafe_allow_html=True)
