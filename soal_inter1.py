@@ -127,13 +127,37 @@ Nama File:
 Terima kasih, Pak 🙏
         """.strip()
 
-        st.text_area("Pesan Siap Kirim ke WA:", wa_message, height=250)
+        # Tampilkan area pesan + tombol copy
+        st.text_area("Pesan Siap Kirim ke WA:", wa_message, height=200, key="wa_msg_area")
+
+        # Tombol copy ke clipboard
+        copy_script = f"""
+        <script>
+        function copyToClipboard() {{
+            const text = `{wa_message}`;
+            navigator.clipboard.writeText(text).then(function() {{
+                alert('✅ Pesan berhasil disalin! Sekarang tinggal paste di WhatsApp 👍');
+            }});
+        }}
+        </script>
+        <button onclick="copyToClipboard()" style="
+            background-color:#25D366;
+            color:white;
+            border:none;
+            padding:10px 20px;
+            border-radius:8px;
+            cursor:pointer;
+            font-size:16px;
+            margin-top:10px;">📋 Copy Pesan ke Clipboard</button>
+        """
+
+        st.markdown(copy_script, unsafe_allow_html=True)
 
         st.markdown("""
 📲 **Langkah-langkah:**
 1. Klik tombol **Download File Jawaban Saya (CSV)** di atas.  
-2. File akan tersimpan di **folder Downloads** perangkat Anda.  
-3. Kirim file CSV tersebut ke dosen via **WhatsApp** beserta pesan di atas.  
+2. Klik tombol **📋 Copy Pesan ke Clipboard** → pesan otomatis tersalin.  
+3. Buka **WhatsApp**, lalu *paste* pesan dan kirim bersama file CSV.  
 4. Pastikan file terkirim dengan benar ✅  
         """)
 
@@ -187,7 +211,4 @@ if st.button("➡️ Lanjut ke Soal Berikutnya"):
 # FOOTER
 # -------------------------------
 st.markdown("---")
-st.markdown("<p style='text-align:center; color:gray;'>© 2025 Ujian Digital PPS | Disusun oleh Dr. Ben</p>", unsafe_allow_html=True)
-
-
-
+st.markdown("<p style='text-align:center; color:gray;'>© 2025 Ujian Digital PPS | Disusun oleh Dr. Ben 😎</p>", unsafe_allow_html=True)
