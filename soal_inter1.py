@@ -3,7 +3,7 @@ from streamlit_autorefresh import st_autorefresh
 import time
 import pandas as pd
 from datetime import datetime
-import os
+import io
 
 # -------------------------------
 # AUTO REFRESH SETIAP 1 DETIK
@@ -90,35 +90,47 @@ if soal_index >= len(soal_list):
         # -------------------------------
         # UJIAN SELESAI
         # -------------------------------
-        st.success("🎉 Ujian / Tugas Selesai! Terima kasih telah mengerjakan semua soal.")
+        st.success("🎉 Ujian / Tugas Selesai! Terima kasih telah mengerjakan semua soal dengan baik.")
 
-        # Gabungkan semua jawaban jadi satu file
+        # Gabungkan semua jawaban jadi satu file (mahasiswa download sendiri)
         df_all = pd.DataFrame(list(st.session_state.answers.items()), columns=["Soal", "Jawaban"])
-        filename_all = f"JawabanLengkap_{st.session_state.name}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
-        df_all.to_csv(filename_all, index=False, encoding="utf-8-sig")
+        filename_all = f"JawabanLengkap_{st.session_state.name.replace(' ', '_')}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
 
-        st.info("📁 Semua jawaban Anda telah tersimpan otomatis ke file berikut:")
-        st.code(os.path.abspath(filename_all), language="bash")
+        # Buat file dalam memory (bukan di server)
+        csv_buffer = io.StringIO()
+        df_all.to_csv(csv_buffer, index=False, encoding="utf-8-sig")
+        csv_data = csv_buffer.getvalue()
 
+        st.markdown("### 📥 Unduh Hasil Jawaban Anda")
+        st.download_button(
+            label="⬇️ Download File Jawaban Saya (CSV)",
+            data=csv_data,
+            file_name=filename_all,
+            mime="text/csv"
+        )
+
+        st.markdown("---")
         st.markdown("### 📤 Kirim Jawaban ke Dosen via WhatsApp")
         wa_message = f"""
-Assalamu'alaikum Pak 🙏
-Saya {st.session_state.name}.
-Berikut file hasil ujian/tugas Data Mining saya.
+Assalamu'alaikum Pak 🙏  
+Saya *{st.session_state.name}*.  
+Berikut file hasil ujian/tugas Data Mining saya.  
 
-Nama File:
-📎 {filename_all}
+Nama File:  
+📎 {filename_all}  
 
 Terima kasih, Pak. 🙏
         """.strip()
         st.text_area("Pesan Siap Kirim ke WA:", wa_message, height=180)
-        st.markdown("📲 **Langkah:**")
         st.markdown("""
-1. Buka folder di atas dan cari file **JawabanLengkap_NamaAnda.csv**  
-2. Kirim file tersebut ke dosen via **WhatsApp** bersama pesan di atas  
-3. Pastikan file sudah terkirim dengan benar ✅
+📲 **Langkah Kirim Jawaban:**
+1. Klik tombol **Download File Jawaban Saya** di atas.
+2. File akan tersimpan di **Folder Downloads** di perangkat Anda (HP/Laptop).
+3. Kirim file tersebut ke dosen via **WhatsApp** bersama pesan di atas.
+4. Pastikan file sudah terkirim dengan benar ✅
         """)
-
+        st.markdown("---")
+        st.markdown("<p style='text-align:center; color:gray;'>© 2025 Ujian Digital Data Mining | Dr. H. Benrahman 😎</p>", unsafe_allow_html=True)
         st.stop()
 
 # -------------------------------
@@ -160,23 +172,9 @@ if st.button("➡️ Lanjut ke Soal Berikutnya"):
     if not jawaban.strip():
         st.warning("Isi dulu jawabannya bro 😅")
     else:
-        df = pd.DataFrame([{
-            "Nama": st.session_state.name,
-            "Fase": st.session_state.phase,
-            "Nomor Soal": soal_index + 1,
-            "Soal": soal,
-            "Jawaban": jawaban,
-            "Waktu Simpan": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        }])
-
-        filename = f"Jawaban_{st.session_state.name}_soal{soal_index + 1}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
-        df.to_csv(filename, index=False, encoding="utf-8-sig")
-        st.success(f"✅ Jawaban soal {soal_index + 1} disimpan ke `{filename}`")
-
-        # Pindah ke soal berikutnya
         st.session_state.current_index += 1
         st.session_state.start_time = time.time()
-        time.sleep(1)
+        time.sleep(0.5)
         st.rerun()
 
 # -------------------------------
