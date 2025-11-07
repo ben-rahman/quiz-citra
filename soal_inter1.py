@@ -127,7 +127,7 @@ Nama File:
 Terima kasih, Pak 🙏
         """.strip()
 
-        st.text_area("Pesan Siap Kirim ke WA:", wa_message, height=150)
+        st.text_area("Pesan Siap Kirim ke WA:", wa_message, height=250)
 
         st.markdown("""
 📲 **Langkah-langkah:**
@@ -188,5 +188,6 @@ if st.button("➡️ Lanjut ke Soal Berikutnya"):
 # -------------------------------
 st.markdown("---")
 st.markdown("<p style='text-align:center; color:gray;'>© 2025 Ujian Digital PPS | Disusun oleh Dr. Ben</p>", unsafe_allow_html=True)
+
 
 
