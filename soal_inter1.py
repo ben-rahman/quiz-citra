@@ -12,7 +12,7 @@ st.set_page_config(
 
 st.title("📊 Kalkulator Produktivitas Tenaga Kerja")
 st.caption("Minimum Viable Product (MVP) – dirancang untuk perusahaan, manajer, dan pemangku kepentingan kebijakan")
-st.caption("Draft awal di cetuskan oleh Dr. Ben, semoga ada masukan saran, usulan untuk perbaikan, semoga App ini bisa digunakan secara Nasional")
+st.caption("Draft awal di cetuskan oleh Dr. Ben, semoga ada masukan/saran, usulan untuk perbaikan, semoga App ini bisa digunakan secara Nasional")
 
 # ----------------------------------
 # SIDEBAR – MODE & PENGATURAN
@@ -336,4 +336,5 @@ st.caption(
     "untuk monitoring produktivitas perusahaan, sektor, dan daerah."
 )
 st.markdown("<p style='text-align:center; color:gray;'>© 2025 MVP Kalkulator Produktivitas | Dibuat oleh Dr. Benrahman 😎</p>", unsafe_allow_html=True)
+
 
