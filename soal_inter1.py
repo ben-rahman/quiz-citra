@@ -4,7 +4,7 @@ import numpy as np
 import locale
 
 # ----------------------------------
-# KONFIGURASI LOKAL
+# KONFIGURASI LOKAL (Indonesia)
 # ----------------------------------
 try:
     locale.setlocale(locale.LC_ALL, 'id_ID.UTF-8')
@@ -12,18 +12,18 @@ except:
     locale.setlocale(locale.LC_ALL, '')
 
 # ----------------------------------
-# KONFIG DASHBOARD
+# SETUP DASHBOARD
 # ----------------------------------
-st.set_page_config(page_title="Kalkulator Produktivitas", layout="wide")
+st.set_page_config(page_title="Kalkulator Produktivitas Nasional", layout="wide")
 
 st.title("📊 Kalkulator Produktivitas Tenaga Kerja")
-st.caption("Versi dengan format angka Indonesia (1.000.000,00) — dirancang oleh Dr. Benrahman 🇮🇩")
+st.caption("Versi dengan format angka Indonesia (1.000.000,00) – dikembangkan oleh Dr. Benrahman 🇮🇩")
 
 # ----------------------------------
-# FUNGSI FORMAT & PARSING
+# FORMAT & PARSING
 # ----------------------------------
 def parse_currency(value_str):
-    """Mengubah input teks seperti '1.000.000,25' jadi float"""
+    """Ubah string '1.000.000,25' jadi float 1000000.25"""
     if not value_str:
         return 0.0
     try:
@@ -33,14 +33,16 @@ def parse_currency(value_str):
         return 0.0
 
 def format_currency(value):
-    """Format float ke tampilan rupiah: 1.000.000,00"""
+    """Ubah float ke format 1.000.000,00"""
     try:
-        return locale.format_string("%.2f", value, grouping=True)
-    except:
-        return f"{value:,.2f}".replace(",", "_").replace(".", ",").replace("_", ".")
+        s = locale.format_string("%.2f", value, grouping=True)
+        return s.replace(",", "_").replace(".", ",").replace("_", ".")
+    except Exception:
+        s = f"{value:,.2f}"
+        return s.replace(",", "_").replace(".", ",").replace("_", ".")
 
 # ----------------------------------
-# UTILITAS PRODUKTIVITAS
+# FUNGSI PERHITUNGAN
 # ----------------------------------
 def hitung_indikator(output, workers, hours, labour_cost):
     lp = output / workers if workers > 0 else np.nan
@@ -77,18 +79,20 @@ w_lp = st.sidebar.slider("Bobot Produktivitas Tenaga Kerja", 0, 100, 40, 5)
 w_hp = st.sidebar.slider("Bobot per Jam Kerja", 0, 100, 30, 5)
 w_wp = st.sidebar.slider("Bobot per Upah", 0, 100, 30, 5)
 total_bobot = w_lp + w_hp + w_wp
-weights = (w_lp/total_bobot, w_hp/total_bobot, w_wp/total_bobot) if total_bobot != 0 else (0, 0, 0)
+weights = (w_lp / total_bobot, w_hp / total_bobot, w_wp / total_bobot) if total_bobot != 0 else (0, 0, 0)
 st.sidebar.caption(f"Total bobot: {total_bobot} (dinormalisasi otomatis)")
 
-target_lp = st.sidebar.text_input("🎯 Target Output/Pekerja (Rp)", "0,00")
-target_hp = st.sidebar.text_input("🎯 Target Output/Jam (Rp)", "0,00")
-target_wp = st.sidebar.text_input("🎯 Target Output/Biaya TK", "0,0000")
+st.sidebar.markdown("---")
+st.sidebar.subheader("🎯 Target Produktivitas")
+target_lp = st.sidebar.text_input("Target Output/Pekerja (Rp)", "0,00")
+target_hp = st.sidebar.text_input("Target Output/Jam (Rp)", "0,00")
+target_wp = st.sidebar.text_input("Target Output/Biaya TK", "0,0000")
 
 # ----------------------------------
 # MODE 1: INPUT MANUAL
 # ----------------------------------
 if mode == "Input Manual":
-    st.header("🧮 Input Manual – Satu Perusahaan")
+    st.header("🧮 Input Manual – Satu Perusahaan / Unit")
 
     nama = st.text_input("Nama Perusahaan / Unit", "PT Contoh Produktif")
     periode = st.text_input("Periode (mis. 2024-Q1)", "2024")
@@ -102,7 +106,7 @@ if mode == "Input Manual":
     with col2:
         hours_str = st.text_input("Total Jam Kerja", "1.200,00")
 
-    # Parsing ke float
+    # Parsing input
     output = parse_currency(output_str)
     workers = parse_currency(workers_str)
     labour_cost = parse_currency(labour_str)
@@ -110,16 +114,17 @@ if mode == "Input Manual":
 
     if st.button("Hitung Produktivitas"):
         lp, hp, wp = hitung_indikator(output, workers, hours, labour_cost)
-        indeks = hitung_indeks(lp, hp, wp, weights, (
-            parse_currency(target_lp), parse_currency(target_hp), parse_currency(target_wp)
-        ))
+        indeks = hitung_indeks(
+            lp, hp, wp, weights,
+            (parse_currency(target_lp), parse_currency(target_hp), parse_currency(target_wp))
+        )
 
         st.subheader("📈 Hasil Perhitungan")
         col_a, col_b, col_c, col_d = st.columns(4)
-        col_a.metric("Output/Pekerja", format_currency(lp))
-        col_b.metric("Output/Jam Kerja", format_currency(hp))
-        col_c.metric("Output/Biaya TK", format_currency(wp))
-        col_d.metric("Indeks Produktivitas", f"{indeks:,.2f}" if not np.isnan(indeks) else "N/A")
+        col_a.metric("Output/Pekerja", f"{format_currency(lp)}")
+        col_b.metric("Output/Jam Kerja", f"{format_currency(hp)}")
+        col_c.metric("Output/Biaya TK", f"{format_currency(wp)}")
+        col_d.metric("Indeks Produktivitas", f"{format_currency(indeks) if not np.isnan(indeks) else 'N/A'}")
 
         st.markdown("---")
         st.markdown(f"""
@@ -135,7 +140,7 @@ if mode == "Input Manual":
 # ----------------------------------
 else:
     st.header("📂 Upload CSV – Multi Unit")
-    st.markdown("Struktur: `unit,output,workers,hours,labour_cost`")
+    st.markdown("Struktur CSV: `unit,output,workers,hours,labour_cost`")
 
     file = st.file_uploader("Upload file CSV", type=["csv"])
     if file:
@@ -149,13 +154,17 @@ else:
             lp_list.append(lp); hp_list.append(hp); wp_list.append(wp); idx_list.append(idx)
 
         df["prod_per_worker"], df["prod_per_hour"], df["prod_per_wage"], df["productivity_index"] = lp_list, hp_list, wp_list, idx_list
+
         df_fmt = df.copy()
         for c in ["output","workers","hours","labour_cost","prod_per_worker","prod_per_hour","prod_per_wage","productivity_index"]:
             df_fmt[c] = df_fmt[c].apply(lambda x: format_currency(x) if pd.notna(x) else "")
+
         st.dataframe(df_fmt)
+        csv_out = df.to_csv(index=False).encode("utf-8")
+        st.download_button("⬇️ Download Hasil CSV", data=csv_out, file_name="hasil_kalkulator_produktivitas.csv", mime="text/csv")
 
 # ----------------------------------
 # FOOTER
 # ----------------------------------
 st.markdown("---")
-st.caption("Kalkulator Produktivitas 🇮🇩 – versi format Indonesia (1.000.000,00) | oleh Dr. Benrahman 😎")
+st.caption("Kalkulator Produktivitas Nasional 🇮🇩 | Format angka khas Indonesia – oleh Dr. Benrahman 😎")
