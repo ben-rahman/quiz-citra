@@ -422,4 +422,5 @@ st.toast("Ready. Load your data or edit the examples.", icon="✅")
 
 st.caption("Draft by Dr. Benrahman, semoga ada masukan dan saran untuk penyempurnaan")
 
+st.markdown("<p style='text-align:center; color:gray;'>© 2025 Produktivitas | Dibuat oleh Dr. Benrahman 😎</p>", unsafe_allow_html=True)
 
