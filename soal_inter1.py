@@ -237,7 +237,7 @@ st.set_page_config(page_title="National-Scale Productivity & Kaizen Analyzer", l
 
 st.title("📈 National-Scale Productivity & Kaizen Analyzer")
 st.caption(
-    "Flexible Streamlit app for mixed-product productivity measurement and Kaizen (continuous improvement) analysis. "
+    "Flexible app for mixed-product productivity measurement and Kaizen (continuous improvement) analysis. "
     f"Version {__VERSION__} – {datetime.now():%Y-%m-%d}"
 )
 
@@ -420,7 +420,8 @@ with mode[3]:
 
 st.toast("Ready. Load your data or edit the examples.", icon="✅")
 
-st.caption("Draft by Dr. Benrahman, semoga ada masukan dan saran untuk penyempurnaan")
+st.caption("Semoga ada masukan dan saran untuk penyempurnaan")
 
 st.markdown("<p style='text-align:center; color:gray;'>© 2025 Produktivitas | Dibuat oleh Dr. Benrahman 😎</p>", unsafe_allow_html=True)
+
 
