@@ -419,3 +419,7 @@ with mode[3]:
     st.info("This app is template-style and intentionally generic so it can fit manufacturing, services, healthcare, logistics, etc.")
 
 st.toast("Ready. Load your data or edit the examples.", icon="✅")
+
+st.caption("Draft by Dr. Benrahman, semoga ada masukan dan saran untuk penyempurnaan")
+
+
